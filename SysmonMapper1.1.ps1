@@ -72,7 +72,7 @@ function drawChart() {
 var data = new google.visualization.DataTable();
 data.addColumn('string', 'ProcessID');
 data.addColumn('string', 'Label');
-data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+data.addColumn('string', 'ToolTip');
 data.addRows([
 " 
 $Header| Out-File $outfile
