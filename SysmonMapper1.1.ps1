@@ -59,7 +59,6 @@ Param(
    [datetime]$StopDate
 )
 $global:outputlines = @()
-
 $outfile = "sysmonmap.html"
 
 $Header = "
@@ -73,7 +72,7 @@ function drawChart() {
 var data = new google.visualization.DataTable();
 data.addColumn('string', 'ProcessID');
 data.addColumn('string', 'Label');
-data.addColumn('string', 'ToolTip');
+data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
 data.addRows([
 " 
 $Header| Out-File $outfile
@@ -87,20 +86,9 @@ If($P -ne ""){
             $eventxmldata = [xml]$event.toxml()
             $EventData = $eventxmldata.Event.EventData.Data
             $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-            $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
             $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
             $Image = $EventData | where {$_.name -eq "Image"}
-            $CommandLine = $EventData | where {$_.name -eq "CommandLine"}
-            $User = $EventData | where {$_.name -eq "User"}
-            $LogonId = $EventData | where {$_.name -eq "LogonId"}
-            $TerminalSessionId = $EventData | where {$_.name -eq "TerminalSessionId"}
-            $IntegrityLevel = $EventData | where {$_.name -eq "IntegrityLevel"}
-            $HashType = $EventData | where {$_.name -eq "HashType"}
-            $Hash = $EventData | where {$_.name -eq "Hash"}
-            $ParentProcessGuid = $EventData | where {$_.name -eq "ParentProcessGuid"}
             $ParentProcessId = $EventData | where {$_.name -eq "ParentProcessId"}
-            $ParentImage = $EventData | where {$_.name -eq "ParentImage"}
-            $ParentCommandLine = $EventData | where {$_.name -eq "ParentCommandLine"}
             If($ProcessId."#Text" -eq $PidPie.ToString()){
                 $ToolTip = @()
                 ForEach($eventdataprop in $EventData){
@@ -138,20 +126,9 @@ If($P -ne ""){
             switch($event.id){
                 1 {
                     $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-                    $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
                     $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
                     $Image = $EventData | where {$_.name -eq "Image"}
-                    $CommandLine = $EventData | where {$_.name -eq "CommandLine"}
-                    $User = $EventData | where {$_.name -eq "User"}
-                    $LogonId = $EventData | where {$_.name -eq "LogonId"}
-                    $TerminalSessionId = $EventData | where {$_.name -eq "TerminalSessionId"}
-                    $IntegrityLevel = $EventData | where {$_.name -eq "IntegrityLevel"}
-                    $HashType = $EventData | where {$_.name -eq "HashType"}
-                    $Hash = $EventData | where {$_.name -eq "Hash"}
-                    $ParentProcessGuid = $EventData | where {$_.name -eq "ParentProcessGuid"}
                     $ParentProcessId = $EventData | where {$_.name -eq "ParentProcessId"}
-                    $ParentImage = $EventData | where {$_.name -eq "ParentImage"}
-                    $ParentCommandLine = $EventData | where {$_.name -eq "ParentCommandLine"}
                     If($ParentProcessId."#Text" -eq $PidPie.ToString()){
                     $OutLine = "[{v:'" + $ProcessId."#text" + "', f:'" + $ProcessId."#text" + "<div>" + $UtcTime."#text" + "<br>" + $Image."#text" + "</div>'},'" + $ParentProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
                     $OutLine = $Outline -replace '\\','\\'
@@ -161,7 +138,6 @@ If($P -ne ""){
                 2 {
                     If($FA){
                         $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-                        $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
                         $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
                         $Image = $EventData | where {$_.name -eq "Image"}
                         $TargetFileName = $EventData | where {$_.name -eq "TargetFileName"}
@@ -177,21 +153,10 @@ If($P -ne ""){
                 3 {
                     If($NA){
                         $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-                        $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
                         $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
-                        $Image = $EventData | where {$_.name -eq "Image"}
-                        $User = $EventData | where {$_.name -eq "User"}
-                        $Protocol = $EventData | where {$_.name -eq "Protocol"}
-                        $SourceIsIpv6 = $EventData | where {$_.name -eq "SourceIsIpv6"}
-                        $SourceIp = $EventData | where {$_.name -eq "SourceIP"}
-                        $SourceHostname = $EventData | where {$_.name -eq "SourceHostname"}
-                        $SourcePort = $EventData | where {$_.name -eq "SourcePort"}
-                        $SourcePortName = $EventData | where {$_.name -eq "SourcePortName"}
-                        $DestinationIsIpv6 = $EventData | where {$_.name -eq "DestinationIsIpv6"}
                         $DestinationIp = $EventData | where {$_.name -eq "DestinationIP"}
                         $DestinationHostname = $EventData | where {$_.name -eq "DestinationHostname"}
                         $DestinationPort = $EventData | where {$_.name -eq "DestinationPort"}
-                        $DestinationPortName = $EventData | where {$_.name -eq "DestinationPortName"}
                         $rand = Get-Random
                         If($ProcessId."#text"=$PidPie.ToString()){
                             $OutLine = "[{v:'" + $rand + $rand + "', f:'<div style="+ [char]34  + "background-color: green; color:white"+ [char]34 + "><div>" + $DestinationHostname."#text" + "</div><div>DST: " + $DestinationIp."#text" + ":" + $DestinationPort."#text" + "</div></div>'},'" + $ProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
@@ -224,20 +189,9 @@ else {
             {
                 1 {
                     $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-                    $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
                     $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
                     $Image = $EventData | where {$_.name -eq "Image"}
-                    $CommandLine = $EventData | where {$_.name -eq "CommandLine"}
-                    $User = $EventData | where {$_.name -eq "User"}
-                    $LogonId = $EventData | where {$_.name -eq "LogonId"}
-                    $TerminalSessionId = $EventData | where {$_.name -eq "TerminalSessionId"}
-                    $IntegrityLevel = $EventData | where {$_.name -eq "IntegrityLevel"}
-                    $HashType = $EventData | where {$_.name -eq "HashType"}
-                    $Hash = $EventData | where {$_.name -eq "Hash"}
-                    $ParentProcessGuid = $EventData | where {$_.name -eq "ParentProcessGuid"}
                     $ParentProcessId = $EventData | where {$_.name -eq "ParentProcessId"}
-                    $ParentImage = $EventData | where {$_.name -eq "ParentImage"}
-                    $ParentCommandLine = $EventData | where {$_.name -eq "ParentCommandLine"}
                     $OutLine = "[{v:'" + $ProcessId."#text" + "', f:'" + $ProcessId."#text" + "<div>" + $UtcTime."#text" + "<br>" + $Image."#text" + "</div>'},'" + $ParentProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
                     $OutLine = $Outline -replace '\\','\\'
                     $global:outputlines+=$Outline
@@ -245,40 +199,28 @@ else {
 
                    2 {
                         If($FA){
-                        $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-                        $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
-                        $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
-                        $Image = $EventData | where {$_.name -eq "Image"}
-                        $TargetFileName = $EventData | where {$_.name -eq "TargetFileName"}
-                        $CreationUtcTime = $EventData | where {$_.name -eq "CreationUtcTime"}
-                        $PreviousCreationUtcTime = $EventData | where {$_.name -eq "PreviousCreationUtcTime"}
-                        $OutLine = "[{v:'" + $TargetFileName."#text" + "', f:'" + $CreationUtcTime."#text" + "<div style="+ [char]34  + "background-color: blue; color:white"+ [char]34 + ">" + $TargetFileName."#text" + "</div>'},'" + $ProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
-                        $OutLine = $Outline -replace '\\','\\'
-                        $global:outputlines+=$Outline
+                            $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
+                            $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
+                            $Image = $EventData | where {$_.name -eq "Image"}
+                            $TargetFileName = $EventData | where {$_.name -eq "TargetFileName"}
+                            $CreationUtcTime = $EventData | where {$_.name -eq "CreationUtcTime"}
+                            $PreviousCreationUtcTime = $EventData | where {$_.name -eq "PreviousCreationUtcTime"}
+                            $OutLine = "[{v:'" + $TargetFileName."#text" + "', f:'" + $CreationUtcTime."#text" + "<div style="+ [char]34  + "background-color: blue; color:white"+ [char]34 + ">" + $TargetFileName."#text" + "</div>'},'" + $ProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
+                            $OutLine = $Outline -replace '\\','\\'
+                            $global:outputlines+=$Outline
                         }
                     }
                    3 {
-                    If($NA){ 
-                        $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
-                        $ProcessGuid = $EventData | where {$_.name -eq "ProcessGuid"}
-                        $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
-                        $Image = $EventData | where {$_.name -eq "Image"}
-                        $User = $EventData | where {$_.name -eq "User"}
-                        $Protocol = $EventData | where {$_.name -eq "Protocol"}
-                        $SourceIsIpv6 = $EventData | where {$_.name -eq "SourceIsIpv6"}
-                        $SourceIp = $EventData | where {$_.name -eq "SourceIP"}
-                        $SourceHostname = $EventData | where {$_.name -eq "SourceHostname"}
-                        $SourcePort = $EventData | where {$_.name -eq "SourcePort"}
-                        $SourcePortName = $EventData | where {$_.name -eq "SourcePortName"}
-                        $DestinationIsIpv6 = $EventData | where {$_.name -eq "DestinationIsIpv6"}
-                        $DestinationIp = $EventData | where {$_.name -eq "DestinationIP"}
-                        $DestinationHostname = $EventData | where {$_.name -eq "DestinationHostname"}
-                        $DestinationPort = $EventData | where {$_.name -eq "DestinationPort"}
-                        $DestinationPortName = $EventData | where {$_.name -eq "DestinationPortName"}
-                        $rand = Get-Random
-                        $OutLine = "[{v:'" + $rand + $rand + "', f:'<div style="+ [char]34  + "background-color: green; color:white"+ [char]34 + "><div>" + $DestinationHostname."#text" + "</div><div>DST: " + $DestinationIp."#text" + ":" + $DestinationPort."#text" + "</div></div>'},'" + $ProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
-                        $OutLine = $Outline -replace '\\','\\'
-                        $global:outputlines+=$Outline
+                        If($NA){ 
+                            $UtcTime = $EventData | where {$_.name -eq "UtcTime"}
+                            $ProcessId = $EventData | where {$_.name -eq "ProcessId"}
+                            $DestinationIp = $EventData | where {$_.name -eq "DestinationIP"}
+                            $DestinationHostname = $EventData | where {$_.name -eq "DestinationHostname"}
+                            $DestinationPort = $EventData | where {$_.name -eq "DestinationPort"}
+                            $rand = Get-Random
+                            $OutLine = "[{v:'" + $rand + $rand + "', f:'<div style="+ [char]34  + "background-color: green; color:white"+ [char]34 + "><div>" + $DestinationHostname."#text" + "</div><div>DST: " + $DestinationIp."#text" + ":" + $DestinationPort."#text" + "</div></div>'},'" + $ProcessId."#text" + "', tooltip(" + $ToolTipString +")]"
+                            $OutLine = $Outline -replace '\\','\\'
+                            $global:outputlines+=$Outline
                         }
                     }
                 }
@@ -292,10 +234,16 @@ $footer = "]);
  var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
         chart.draw(data, {allowHtml:true,allowCollapse:true});
       }
+    var options = {
+      // This line makes the entire category's tooltip active.
+    focusTarget: 'category',
+    // Use an HTML tooltip.
+    tooltip: { isHtml: true }
+    }
     function tooltip() {
     var thing =`"`";
     for (var i = 0, j = arguments.length; i < j; i++){
-        thing = thing + `"\n`" + arguments[i];
+        thing = thing + `'<br>`' + arguments[i];
     }
     return thing;
     }
