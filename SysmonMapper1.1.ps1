@@ -48,6 +48,8 @@
 [CmdletBinding(PositionalBinding=$false)]             
 Param(
    [Parameter(Mandatory=$False)]
+   [String] $Remote ="",
+   [Parameter(Mandatory=$False)]
    [Switch] $FA = $false, #File Access
    [Parameter(Mandatory=$False)]
    [Switch] $NA = $false, #Network Access
@@ -58,6 +60,8 @@ Param(
    [Parameter(Mandatory=$True)]
    [datetime]$StopDate
 )
+$ComputerName="LocalHost"
+If($Remote -ne ""){$ComputerName = $Remote}
 $global:outputlines = @()
 $outfile = "sysmonmap.html"
 
@@ -78,7 +82,7 @@ data.addRows([
 $Header| Out-File $outfile
 
 If($P -ne ""){
-    $events = Get-WinEvent -LogName Microsoft-Windows-Sysmon/Operational 
+    $events = Get-WinEvent -LogName Microsoft-Windows-Sysmon/Operational -ComputerName $ComputerName
     $ParentProcessEvents = $events|Where-Object { ($_.TimeCreated -le $StopDate -and $_.id -eq 1)}|Sort-Object TimeCreated -Descending
     Function GetParentProcessPath{
     Param($PidPie)
@@ -92,9 +96,7 @@ If($P -ne ""){
             If($ProcessId."#Text" -eq $PidPie.ToString()){
                 $ToolTip = @()
                 ForEach($eventdataprop in $EventData){
-                    $PropValueClean = $eventdataprop."#text"
-                    $PropValueClean = $PropValueClean -replace '"',""
-                    $PropValueClean = $PropValueClean -replace "`'",""
+                    $PropValueClean = $eventdataprop."#text" -replace '"' -replace "`'"
                     $ToolTip+="`'" + $eventdataprop.name + " : " + $PropValueClean + "`'"
                 }
                 $ToolTipString = $ToolTip -join ","
@@ -117,9 +119,7 @@ If($P -ne ""){
             $EventData = $eventxmldata.Event.EventData.Data
             $ToolTip = @()
             ForEach($eventdataprop in $EventData){
-                $PropValueClean = $eventdataprop."#text"
-                $PropValueClean = $PropValueClean -replace '"',""
-                $PropValueClean = $PropValueClean -replace "`'",""
+                $PropValueClean = $eventdataprop."#text" -replace '"' -replace "`'"
                 $ToolTip+="`'" + $eventdataprop.name + " : " + $PropValueClean + "`'"
             }
             $ToolTipString = $ToolTip -join ","
@@ -173,15 +173,13 @@ If($P -ne ""){
 } 
 else {
 
-    $events = Get-WinEvent -LogName Microsoft-Windows-Sysmon/Operational |Where-Object { ( $_.TimeCreated -gt $StartDate -and $_.TimeCreated -le $StopDate)}|Sort-Object TimeCreated
+    $events = Get-WinEvent -LogName Microsoft-Windows-Sysmon/Operational  -ComputerName $ComputerName |Where-Object { ( $_.TimeCreated -gt $StartDate -and $_.TimeCreated -le $StopDate)}|Sort-Object TimeCreated
     ForEach($event in $events){
         $eventxmldata = [xml]$event.toxml()
         $EventData = $eventxmldata.Event.EventData.Data
         $ToolTip = @()
         ForEach($eventdataprop in $EventData){
-            $PropValueClean = $eventdataprop."#text"
-            $PropValueClean = $PropValueClean -replace '"',""
-            $PropValueClean = $PropValueClean -replace "`'",""
+            $PropValueClean = $eventdataprop."#text" -replace '"' -replace "`'"
             $ToolTip+="`'" + $eventdataprop.name + " : " + $PropValueClean + "`'"
             }
         $ToolTipString = $ToolTip -join ","

@@ -4,13 +4,9 @@ Param(
    [String] $Remote =""
 )
 
-
 $global:outputlines = @()
 $outfile = "liveprocessmap.html"
 $ComputerName="LocalHost"
-
-
-
 
 $Header = "
 <html>
@@ -50,7 +46,6 @@ $footer = "]);
       }
     </script>
   </head>
-
   <body>
     <div id=`'chart_div`'></div>
   </body>
