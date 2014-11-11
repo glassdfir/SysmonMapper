@@ -241,7 +241,7 @@ $footer = "]);
     function tooltip() {
     var thing =`"`";
     for (var i = 0, j = arguments.length; i < j; i++){
-        thing = thing + `'<br>`' + arguments[i];
+        thing = thing + `'\n`' + arguments[i];
     }
     return thing;
     }
